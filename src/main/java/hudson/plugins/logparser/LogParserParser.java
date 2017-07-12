@@ -319,14 +319,66 @@ public class LogParserParser {
         String line;
         String status;
         int line_num = 0;
+
+        ArrayList<String> linesBeforeKeyLine = new ArrayList<String>();
+        int ignoredLinesNumBeforeKeyLine = 0;
+
         while ((line = reader.readLine()) != null) {
             status = (String) lineStatusMatches.get(String.valueOf(line_num));
             final String parsedLine = parseLine(line, status);
-            // This is for displaying sections in the links part
-            writer.write(parsedLine);
-            writer.newLine(); // Write system dependent end of line.
+            
+            // 为了解决 log 太大浏览器打开时直接卡死的问题，只保留 log 中关键行的前 100 行
+
+            if (status != null
+                && !status.equals(LogParserConsts.NONE)) {
+                // 是一个关键行
+                // 将数组中缓存的所有 log 写入文件
+
+                linesBeforeKeyLine.add(parsedLine);
+
+                if (ignoredLinesNumBeforeKeyLine > 0) {
+                    linesBeforeKeyLine.add(0, "<strong style='color:gray'>.................................. omitted "+ ignoredLinesNumBeforeKeyLine +" lines ..................................</strong>");
+                }
+
+                for (String keepLine : linesBeforeKeyLine) {             
+                    writer.write(keepLine);
+                    writer.newLine();        
+                }
+
+                linesBeforeKeyLine.clear();
+                ignoredLinesNumBeforeKeyLine = 0;
+
+            } else {
+                // 非关键行
+                // 将 log 写入数组
+
+                linesBeforeKeyLine.add(parsedLine);
+
+                if (linesBeforeKeyLine.size() > 100) {
+                    linesBeforeKeyLine.remove(0);
+                    ignoredLinesNumBeforeKeyLine ++;
+                }
+            }
+
+            // // This is for displaying sections in the links part
+            // writer.write(parsedLine);
+            // writer.newLine(); // Write system dependent end of line.
             line_num++;
         }
+
+        // 将剩下的 log 全部写入文件
+        if (ignoredLinesNumBeforeKeyLine > 0) {
+            linesBeforeKeyLine.add(0, "<strong style='color:gray'>.................................. omitted "+ ignoredLinesNumBeforeKeyLine +" lines ..................................</strong>");
+        }
+
+        for (String keepLine : linesBeforeKeyLine) {             
+            writer.write(keepLine);
+            writer.newLine();        
+        }
+
+        linesBeforeKeyLine.clear();
+        ignoredLinesNumBeforeKeyLine = 0;
+
         reader.close();
 
         // Logging information - end
