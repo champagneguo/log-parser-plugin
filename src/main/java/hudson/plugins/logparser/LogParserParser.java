@@ -320,14 +320,17 @@ public class LogParserParser {
         String status;
         int line_num = 0;
 
+        int lineNumAfterKeyLine = -1;
+        int MaxLineNumBeforeKeyLine = 100, MaxLineNumAfterKeyLine = 100;
+
         ArrayList<String> linesBeforeKeyLine = new ArrayList<String>();
-        int ignoredLinesNumBeforeKeyLine = 0;
+        int ignoredLineNumBeforeKeyLine = 0;
 
         while ((line = reader.readLine()) != null) {
             status = (String) lineStatusMatches.get(String.valueOf(line_num));
             final String parsedLine = parseLine(line, status);
             
-            // 为了解决 log 太大浏览器打开时直接卡死的问题，只保留 log 中关键行的前 100 行
+            // 为了解决 log 太大浏览器打开时直接卡死的问题，只保留 log 中关键行的前后 100 行
 
             if (status != null
                 && !status.equals(LogParserConsts.NONE)) {
@@ -336,8 +339,8 @@ public class LogParserParser {
 
                 linesBeforeKeyLine.add(parsedLine);
 
-                if (ignoredLinesNumBeforeKeyLine > 0) {
-                    linesBeforeKeyLine.add(0, "<strong style='color:gray'>.................................. omitted "+ ignoredLinesNumBeforeKeyLine +" lines ..................................</strong>");
+                if (ignoredLineNumBeforeKeyLine > 0) {
+                    linesBeforeKeyLine.add(0, "<strong style='color:gray'>.................................. omitted "+ ignoredLineNumBeforeKeyLine +" lines ..................................</strong>");
                 }
 
                 for (String keepLine : linesBeforeKeyLine) {             
@@ -346,17 +349,26 @@ public class LogParserParser {
                 }
 
                 linesBeforeKeyLine.clear();
-                ignoredLinesNumBeforeKeyLine = 0;
+                ignoredLineNumBeforeKeyLine = 0;
+
+                lineNumAfterKeyLine = 0;
 
             } else {
                 // 非关键行
-                // 将 log 写入数组
+                // 在碰到了关键行之后将后面的 小余 100 的 log 写入文件，大于 100 的 log 写入数组
+                // 数组大于 100 之后开始先进先出
+                if (lineNumAfterKeyLine >= 0 && lineNumAfterKeyLine < MaxLineNumAfterKeyLine) {
+                    writer.write(parsedLine);
+                    writer.newLine();
 
-                linesBeforeKeyLine.add(parsedLine);
+                    lineNumAfterKeyLine ++;
+                } else {
+                    linesBeforeKeyLine.add(parsedLine);
 
-                if (linesBeforeKeyLine.size() > 100) {
-                    linesBeforeKeyLine.remove(0);
-                    ignoredLinesNumBeforeKeyLine ++;
+                    if (linesBeforeKeyLine.size() > MaxLineNumBeforeKeyLine) {
+                        linesBeforeKeyLine.remove(0);
+                        ignoredLineNumBeforeKeyLine ++;
+                    }
                 }
             }
 
@@ -367,8 +379,8 @@ public class LogParserParser {
         }
 
         // 将剩下的 log 全部写入文件
-        if (ignoredLinesNumBeforeKeyLine > 0) {
-            linesBeforeKeyLine.add(0, "<strong style='color:gray'>.................................. omitted "+ ignoredLinesNumBeforeKeyLine +" lines ..................................</strong>");
+        if (ignoredLineNumBeforeKeyLine > 0) {
+            linesBeforeKeyLine.add(0, "<strong style='color:gray'>.................................. omitted "+ ignoredLineNumBeforeKeyLine +" lines ..................................</strong>");
         }
 
         for (String keepLine : linesBeforeKeyLine) {             
@@ -377,7 +389,7 @@ public class LogParserParser {
         }
 
         linesBeforeKeyLine.clear();
-        ignoredLinesNumBeforeKeyLine = 0;
+        ignoredLineNumBeforeKeyLine = 0;
 
         reader.close();
 
