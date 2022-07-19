@@ -79,6 +79,10 @@ public final class LogParserWriter {
         writeLinks(writer, LogParserConsts.INFO, headerForSection,
                 statusCountPerSection, iconTable, linkListDisplay,
                 linkListDisplayPlural, statusCount, linkFiles);
+        // Write Info
+        writeLinks(writer, LogParserConsts.RECOMMEND, headerForSection,
+                statusCountPerSection, iconTable, linkListDisplay,
+                linkListDisplayPlural, statusCount, linkFiles);
         writer.write(LogParserConsts.getHtmlClosingTags());
         writer.close(); // Close to unlock and flush to disk.
 

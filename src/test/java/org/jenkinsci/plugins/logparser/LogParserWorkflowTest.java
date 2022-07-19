@@ -40,6 +40,8 @@ public class LogParserWorkflowTest {
         job.setDefinition(new CpsFlowDefinition(""
                         + "node {\n"
                         + "  def mvnHome = tool '" + mavenInstallation.getName() + "'\n"
+                        + "  sh \"ls ${mvnHome}/bin/mvn \"\n"
+                        + "  sh \"${mvnHome}/bin/mvn --version\"\n"
                         + "  sh \"${mvnHome}/bin/mvn clean install\"\n"
                         + "  step([$class: 'LogParserPublisher', projectRulePath: 'logparser-rules.txt', useProjectRule: true])\n"
                         + "}\n", true)
@@ -47,7 +49,7 @@ public class LogParserWorkflowTest {
         jenkinsRule.assertBuildStatusSuccess(job.scheduleBuild2(0));
         LogParserAction result = job.getLastBuild().getAction(LogParserAction.class);
         assertEquals(0, result.getResult().getTotalErrors());
-        // assertEquals(2, result.getResult().getTotalWarnings());
+        assertEquals(2, result.getResult().getTotalWarnings());
         assertEquals(0, result.getResult().getTotalInfos());
     }
 

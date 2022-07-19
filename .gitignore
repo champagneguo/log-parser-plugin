@@ -19,3 +19,6 @@ build
 *~
 
 *.class
+.DS_Store
+src/main/.DS_Store
+src/main/webapp/.DS_Store
