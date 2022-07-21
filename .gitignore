@@ -19,3 +19,8 @@ build
 *~
 
 *.class
+.DS_Store
+src/main/.DS_Store
+src/main/webapp/.DS_Store
+src/test/resources/org/jenkinsci/plugins/.DS_Store
+src/test/resources/org/jenkinsci/plugins/logparser/.DS_Store

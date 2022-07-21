@@ -79,6 +79,10 @@ public final class LogParserWriter {
         writeLinks(writer, LogParserConsts.INFO, headerForSection,
                 statusCountPerSection, iconTable, linkListDisplay,
                 linkListDisplayPlural, statusCount, linkFiles);
+        // Write Advices
+//        writeLinksAdvices(writer, LogParserConsts.ADVICES, headerForSection,
+//                statusCountPerSection, iconTable, linkListDisplay,
+//                linkListDisplayPlural, statusCount, linkFiles);
         writer.write(LogParserConsts.getHtmlClosingTags());
         writer.close(); // Close to unlock and flush to disk.
 
@@ -106,7 +110,7 @@ public final class LogParserWriter {
                 + "\" style=\"margin: 2px;\" width=\"24\" alt=\"" + linkListDisplayStr + " Icon\" height=\"24\" />\n"
                 + "<a href=\"javascript:toggleList('" + linkListDisplayStr + "')\" target=\"_self\"><STRONG>"
                 + linkListDisplayStr + " (" + linkListCount + ")</STRONG></a><br />\n" + "<ul id=\""
-                + linkListDisplayStr + "\" style=\"display:none; margin-left:0; padding-left:3em\">\n";
+                + linkListDisplayStr + "\" style=\"display:block; margin-left:0; padding-left:3em\">\n";
 
         writer.write(linksStart);
 
@@ -114,7 +118,7 @@ public final class LogParserWriter {
         final BufferedReader reader = new BufferedReader(new FileReader(
                 (String) linkFiles.get(status)));
         String line = null;
-        final String summaryLine = "<br/>(SUMMARY_INT_HERE LINK_LIST_DISPLAY_STR in this section)<br/>";
+        final String summaryLine = "<br/><br/>(SUMMARY_INT_HERE LINK_LIST_DISPLAY_STR in this section)<br/><br/>";
 
         final String headerTemplateRegexp = "HEADER HERE:";
         final String headerTemplateSplitBy = "#";
@@ -157,6 +161,34 @@ public final class LogParserWriter {
             }
         }
         reader.close(); // Close to unlock.
+
+        final String linksEnd = "</ul>\n";
+        writer.write(linksEnd);
+
+    }
+
+    private static void writeLinksAdvices(final BufferedWriter writer,
+                                   final String status, final ArrayList<String> headerForSection,
+                                   final HashMap<String, Integer> statusCountPerSection,
+                                   final HashMap<String, String> iconTable,
+                                   final HashMap<String, String> linkListDisplay,
+                                   final HashMap<String, String> linkListDisplayPlural,
+                                   final HashMap<String, Integer> statusCount,
+                                   final HashMap<String, String> linkFiles) throws IOException {
+        final String statusIcon = (String) iconTable.get(status);
+        final String linkListDisplayStr = (String) linkListDisplay.get(status);
+        final String linkListDisplayStrPlural = (String) linkListDisplayPlural
+                .get(status);
+        final String hudsonRoot = Hudson.getInstance().getRootUrl();
+        final String iconLocation = String.format("%s/images/16x16/",
+                Functions.getResourcePath());
+        final String linksStart = "<img src=\"" + hudsonRoot + "/" + iconLocation + statusIcon
+                + "\" style=\"margin: 2px;\" width=\"24\" alt=\"" + linkListDisplayStr + " Icon\" height=\"24\" />\n"
+                + "<a href=\"http://weibodocs.pages.intra.weibo.cn/client/#/%E5%9F%BA%E7%A1%80%E7%A0%94%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/%E6%89%93%E5%8C%85%E5%B9%B3%E5%8F%B0%E6%8A%A5%E9%94%99%E6%8E%92%E6%9F%A5%E6%AD%A5%E9%AA%A4\" target=\"content\"><STRONG>"
+                + linkListDisplayStr + " </STRONG></a><br />\n" + "<ul id=\""
+                + linkListDisplayStr + "\" style=\"display:none; margin-left:0; padding-left:3em\">\n";
+
+        writer.write(linksStart);
 
         final String linksEnd = "</ul>\n";
         writer.write(linksEnd);

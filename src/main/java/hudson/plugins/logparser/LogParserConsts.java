@@ -10,6 +10,8 @@ public class LogParserConsts {
     public static final String ERROR = "ERROR";
     public static final String WARNING = "WARNING";
     public static final String INFO = "INFO";
+
+    public static final String ADVICES = "ADVICES";
     public static final String NONE = "NONE";
     public static final String START = "START"; // marks a beginning of a section
     public static final String DEFAULT = NONE;

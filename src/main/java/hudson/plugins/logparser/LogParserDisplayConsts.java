@@ -15,20 +15,24 @@ public class LogParserDisplayConsts {
         colorTable.put(LogParserConsts.WARNING, "orange");
         colorTable.put(LogParserConsts.INFO, "blue");
         colorTable.put(LogParserConsts.START, "blue");
+        colorTable.put(LogParserConsts.ADVICES, "blue");
 
         // Icon for each status in the summary
         iconTable.put(LogParserConsts.ERROR, "red.gif");
         iconTable.put(LogParserConsts.WARNING, "yellow.gif");
         iconTable.put(LogParserConsts.INFO, "blue.gif");
+        iconTable.put(LogParserConsts.ADVICES,"blue.gif");
 
         // How to display in link summary html
         linkListDisplay.put(LogParserConsts.ERROR, "Error");
         linkListDisplay.put(LogParserConsts.WARNING, "Warning");
         linkListDisplay.put(LogParserConsts.INFO, "Info");
+        linkListDisplay.put(LogParserConsts.ADVICES, "报错排查步骤推荐");
 
         linkListDisplayPlural.put(LogParserConsts.ERROR, "Errors");
         linkListDisplayPlural.put(LogParserConsts.WARNING, "Warnings");
         linkListDisplayPlural.put(LogParserConsts.INFO, "Infos");
+        linkListDisplayPlural.put(LogParserConsts.ADVICES, "Advices");
     }
 
     public HashMap<String, String> getColorTable() {

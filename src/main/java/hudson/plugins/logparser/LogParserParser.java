@@ -120,7 +120,7 @@ public class LogParserParser {
         // file.
 
         // Create dummy header and section for beginning of log
-        final String shortLink = " <a target=\"content\" href=\"log_content.html\">Beginning of log</a>";
+        final String shortLink = " <a target=\"content\" href=\"http://weibodocs.pages.intra.weibo.cn/client/#/%E5%BE%AE%E5%8D%9A%E4%B8%BB%E7%AB%AF%E5%BC%80%E5%8F%91%E5%8F%91%E7%89%88%E6%B5%81%E7%A8%8B/%E5%AE%A2%E6%88%B7%E7%AB%AF%E9%94%99%E8%AF%AF%E9%97%AE%E9%A2%98%E9%9B%86%E9%94%A6\" style=\"font-weight: bold;color: green;\">&gt;&gt;客户端错误问题集锦&lt;&lt;</a>";
         LogParserWriter.writeHeaderTemplateToAllLinkFiles(writers,
                 sectionCounter); // This enters a line which will later be
                                  // replaced by the actual header and count for
