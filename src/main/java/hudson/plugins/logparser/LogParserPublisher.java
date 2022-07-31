@@ -114,7 +114,11 @@ public class LogParserPublisher extends Recorder implements SimpleBuildStep, Ser
     @Override
     public void perform(Run<?, ?> build, FilePath workspace, Launcher launcher, TaskListener listener) throws
             InterruptedException, IOException {
-
+        System.out.println("编译结果:"+build.getResult());
+        if (Result.SUCCESS.equals(build.getResult())){
+            System.out.println("编译成功，不需要解析");
+            return;
+        }
         final Logger logger = Logger.getLogger(getClass().getName());
         LogParserResult result = new LogParserResult();
         try {

@@ -120,12 +120,14 @@ public class LogParserParser {
         // file.
 
         // Create dummy header and section for beginning of log
+        final String adviceLink = " <a target=\"content\" href=\"http://weibodocs.pages.intra.weibo.cn/client/#/%E5%9F%BA%E7%A1%80%E7%A0%94%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/%E6%89%93%E5%8C%85%E5%B9%B3%E5%8F%B0%E6%8A%A5%E9%94%99%E6%8E%92%E6%9F%A5%E6%AD%A5%E9%AA%A4\" style=\"font-weight: bold;color: green;\">&gt;&gt;报错排查步骤&lt;&lt;</a><br/><br/>";
         final String shortLink = " <a target=\"content\" href=\"http://weibodocs.pages.intra.weibo.cn/client/#/%E5%BE%AE%E5%8D%9A%E4%B8%BB%E7%AB%AF%E5%BC%80%E5%8F%91%E5%8F%91%E7%89%88%E6%B5%81%E7%A8%8B/%E5%AE%A2%E6%88%B7%E7%AB%AF%E9%94%99%E8%AF%AF%E9%97%AE%E9%A2%98%E9%9B%86%E9%94%A6\" style=\"font-weight: bold;color: green;\">&gt;&gt;客户端错误问题集锦&lt;&lt;</a>";
+
         LogParserWriter.writeHeaderTemplateToAllLinkFiles(writers,
                 sectionCounter); // This enters a line which will later be
                                  // replaced by the actual header and count for
                                  // this header
-        headerForSection.add(shortLink);
+        headerForSection.add(adviceLink + shortLink);
         writer.write(LogParserConsts.getHtmlOpeningTags());
         if (this.preformattedHtml)
             writer.write("<pre>");
@@ -200,7 +202,7 @@ public class LogParserParser {
         parsedLine = parsedLine.replaceAll("<", "&lt;");
         // Allows > to be seen in log which is html
         parsedLine = parsedLine.replaceAll(">", "&gt;");
-
+        String rule = "";
         if (effectiveStatus != null
                 && !effectiveStatus.equals(LogParserConsts.NONE)) {
             // Increment count of the status
@@ -209,10 +211,19 @@ public class LogParserParser {
             // Color line according to the status
             final String parsedLineColored = colorLine(parsedLine,
                     effectiveStatus);
+            for (int i = 0; i < this.parsingRulesArray.length; i++) {
+                final String parsingRule = this.parsingRulesArray[i];
+                if (!LogParserUtils.skipParsingRule(parsingRule)
+                        && this.compiledPatterns[i] != null
+                        && this.compiledPatterns[i].matcher(line).find()) {
+                    rule = parsingRule;
+                    break;
+                }
+            }
 
             // Mark line and add to left side links of highlighted lines
             final String parsedLineColoredAndMarked = addMarkerAndLink(
-                    parsedLineColored, effectiveStatus, status);
+                    parsedLineColored, effectiveStatus, status, rule);
             parsedLine = parsedLineColoredAndMarked;
         }
         final StringBuffer result = new StringBuffer(parsedLine);
@@ -251,7 +262,7 @@ public class LogParserParser {
     }
 
     private String addMarkerAndLink(final String line,
-            final String effectiveStatus, final String status)
+            final String effectiveStatus, final String status,final String rule)
             throws IOException {
         // Add marker
         final String statusCountStr = ((Integer) statusCount
@@ -259,16 +270,31 @@ public class LogParserParser {
         final String marker = effectiveStatus + statusCountStr;
 
         // Add link
-        final StringBuffer shortLink = new StringBuffer(
+        StringBuffer shortLink = new StringBuffer(
                 " <a target=\"content\" href=\"log_content.html#");
+        if (effectiveStatus.toLowerCase().equals("error")){
+            shortLink = new StringBuffer(
+                    " <a target=\"content\" style=\"color:red\" href=\"log_content.html#");
+        }
         shortLink.append(marker);
         shortLink.append("\">");
-        shortLink.append(line);
+        shortLink.append("日志定位："+line);
         shortLink.append("</a>");
+
+        String originRule = rule;
+        if (originRule.contains("/")){
+            originRule = originRule.split("/")[1].trim();
+        }
+        final StringBuffer ruleLink = new StringBuffer(
+                "<br/><br/>&nbsp;&nbsp;&nbsp;<a target=\"content\" href=\"http://weibodocs.pages.intra.weibo.cn/client/#/%E5%BE%AE%E5%8D%9A%E4%B8%BB%E7%AB%AF%E5%BC%80%E5%8F%91%E5%8F%91%E7%89%88%E6%B5%81%E7%A8%8B/%E5%AE%A2%E6%88%B7%E7%AB%AF%E9%94%99%E8%AF%AF%E9%97%AE%E9%A2%98%E9%9B%86%E9%94%A6?id="+originRule.replaceAll(" ","_"));
+        ruleLink.append("\">");
+        ruleLink.append("原因查看：").append(originRule);
+        ruleLink.append("</a><br/>");
 
         final StringBuffer link = new StringBuffer("<li>");
         link.append(statusCountStr);
         link.append(shortLink);
+        //link.append(ruleLink);
         link.append("</li><br/>");
 
         final BufferedWriter linkWriter = (BufferedWriter) writers
@@ -400,6 +426,9 @@ public class LogParserParser {
         final long diffMinutes = diffSeconds / 60;
         logger.log(Level.INFO, "LogParserParser: Parsing took " + diffMinutes
                 + " minutes (" + diffSeconds + ") seconds.");
+
+        computer.clearComputedStatusMatches();
+        lineStatusMatches.clear();
 
     }
 
