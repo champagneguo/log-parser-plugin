@@ -25,7 +25,7 @@ public class LogParserStatusComputer implements Serializable {
     //private VirtualChannel channel;
     final private String[] parsingRulesArray;
     final private Pattern[] compiledPatterns;
-    final private transient HashMap<String, String> computedStatusMatches;
+    final private HashMap<String, String> computedStatusMatches;
 
     public LogParserStatusComputer(final VirtualChannel channel,
             final FilePath filePath, final String[] parsingRulesArray,
